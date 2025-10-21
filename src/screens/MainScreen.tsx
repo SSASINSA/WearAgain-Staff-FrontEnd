@@ -31,6 +31,7 @@ export default function MainScreen({navigation}: MainScreenProps) {
         onPress: () => {
           // TODO: QR 스캔 기능 구현
           console.log(`${serviceType} QR 스캔 시작`);
+          navigation.navigate('Register');
         },
       },
     ]);
@@ -65,7 +66,7 @@ export default function MainScreen({navigation}: MainScreenProps) {
               <QrSvg
                 width={16}
                 height={18}
-                fill="#06B0B7"
+                color="#06B0B7"
                 style={styles.qrIcon}
               />
               <Text variant="labelL" color="#06B0B7" align="center">
@@ -88,7 +89,7 @@ export default function MainScreen({navigation}: MainScreenProps) {
               <QrSvg
                 width={16}
                 height={18}
-                fill="#642C8D"
+                color="#642C8D"
                 style={styles.qrIcon}
               />
               <Text variant="labelL" color="#642C8D" align="center">
@@ -111,7 +112,7 @@ export default function MainScreen({navigation}: MainScreenProps) {
               <QrSvg
                 width={16}
                 height={18}
-                fill="#FB923C"
+                color="#FB923C"
                 style={styles.qrIcon}
               />
               <Text variant="labelL" color="#FB923C" align="center">
