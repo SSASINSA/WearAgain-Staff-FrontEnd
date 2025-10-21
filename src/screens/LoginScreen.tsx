@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,21 +16,23 @@ interface LoginScreenProps {
   navigation: any;
 }
 
+// 이미지 에셋 경로
+const logoImage = require('../asset/image/wear_again_logo.png');
+
 export default function LoginScreen({navigation}: LoginScreenProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [authCode, setAuthCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('오류', '이메일과 비밀번호를 입력해주세요.');
+  const handleVerify = async () => {
+    if (!authCode.trim()) {
+      Alert.alert('오류', '인증 코드를 입력해주세요.');
       return;
     }
 
     setIsLoading(true);
     try {
-      // TODO: 실제 로그인 API 호출
-      console.log('로그인 시도:', {email, password});
+      // TODO: 실제 인증 API 호출
+      console.log('인증 코드 확인:', authCode);
       // 임시로 2초 후 성공 처리
       setTimeout(() => {
         setIsLoading(false);
@@ -38,7 +41,7 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
       }, 2000);
     } catch (error) {
       setIsLoading(false);
-      Alert.alert('오류', '로그인에 실패했습니다.');
+      Alert.alert('오류', '인증에 실패했습니다.');
     }
   };
 
@@ -46,87 +49,68 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled">
-        <View style={styles.content}>
-          {/* 로고 및 타이틀 영역 */}
-          <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Text variant="displayL" color="#1A1A1A" align="center">
-                WearAgain
-              </Text>
-              <Text variant="headlineM" color="#666666" align="center">
-                Staff Portal
-              </Text>
-            </View>
+      <View style={styles.content}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          {/* 로고 이미지 */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={logoImage}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
 
-          {/* 로그인 폼 영역 */}
-          <View style={styles.formContainer}>
-            <Text variant="headlineL" color="#1A1A1A" align="center">
-              직원 로그인
+          {/* 타이틀 영역 */}
+          <View style={styles.titleContainer}>
+            <Text variant="displayM" color="#111827" align="center">
+              스태프 인증 코드
             </Text>
             <Text
               variant="bodyM"
-              color="#666666"
+              color="#6B7280"
               align="center"
               style={styles.subtitle}>
-              계정 정보를 입력해주세요
+              관리자로부터 받은 인증 코드를 입력해주세요
             </Text>
-
-            <View style={styles.inputContainer}>
-              <Text variant="labelM" color="#1A1A1A" style={styles.inputLabel}>
-                이메일
-              </Text>
-              <TextInput
-                style={styles.textInput}
-                placeholder="직원 이메일을 입력하세요"
-                placeholderTextColor="#999999"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text variant="labelM" color="#1A1A1A" style={styles.inputLabel}>
-                비밀번호
-              </Text>
-              <TextInput
-                style={styles.textInput}
-                placeholder="비밀번호를 입력하세요"
-                placeholderTextColor="#999999"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[
-                styles.loginButton,
-                isLoading && styles.loginButtonDisabled,
-              ]}
-              onPress={handleLogin}
-              disabled={isLoading}>
-              <Text variant="labelL" color="#FFFFFF" align="center">
-                {isLoading ? '로그인 중...' : '로그인'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.forgotPassword}>
-              <Text variant="bodyM" color="#007AFF" align="center">
-                비밀번호를 잊으셨나요?
-              </Text>
-            </TouchableOpacity>
           </View>
+
+          {/* 인증 코드 입력 영역 */}
+          <View style={styles.inputContainer}>
+            <Text variant="labelM" color="#374151" style={styles.inputLabel}>
+              인증 코드
+            </Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="인증 코드를 입력하세요"
+              placeholderTextColor="#9CA3AF"
+              value={authCode}
+              onChangeText={setAuthCode}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="default"
+              maxLength={6}
+            />
+          </View>
+        </ScrollView>
+
+        {/* 확인 버튼 - 화면 하단 고정 */}
+        <View style={styles.bottomButtonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.verifyButton,
+              authCode.length === 6 && styles.verifyButtonActive,
+            ]}
+            onPress={isLoading ? undefined : handleVerify}
+            disabled={isLoading || authCode.length !== 6}>
+            <Text variant="labelL" color="#FFFFFF" align="center">
+              {isLoading ? '확인 중...' : '확인'}
+            </Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -138,56 +122,71 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 76,
+    paddingBottom: 20,
+    alignItems: 'center',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 60,
   },
   logoContainer: {
+    width: 300,
+    height: 200,
+    marginBottom: 28,
     alignItems: 'center',
-  },
-  formContainer: {
-    flex: 1,
     justifyContent: 'center',
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: 32,
   },
   subtitle: {
     marginTop: 8,
-    marginBottom: 40,
   },
   inputContainer: {
-    marginBottom: 24,
+    width: 327,
+    marginBottom: 32,
   },
   inputLabel: {
     marginBottom: 8,
   },
   textInput: {
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 20,
     fontSize: 16,
     fontFamily: 'Pretendard-Regular',
-    backgroundColor: '#FAFAFA',
-    color: '#1A1A1A',
+    backgroundColor: '#FFFFFF',
+    color: '#111827',
+    height: 64,
   },
-  loginButton: {
-    backgroundColor: '#007AFF',
+  bottomButtonContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 30,
+    paddingTop: 20,
+    backgroundColor: '#FFFFFF',
+  },
+  verifyButton: {
+    backgroundColor: '#8A3FB8',
     borderRadius: 12,
     paddingVertical: 16,
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  loginButtonDisabled: {
-    backgroundColor: '#CCCCCC',
-  },
-  forgotPassword: {
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 56,
+    width: '100%',
     alignSelf: 'center',
+    opacity: 0.5,
+  },
+  verifyButtonActive: {
+    opacity: 1,
   },
 });
