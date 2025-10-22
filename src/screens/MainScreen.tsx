@@ -31,7 +31,7 @@ export default function MainScreen({navigation}: MainScreenProps) {
         onPress: () => {
           // TODO: QR 스캔 기능 구현
           console.log(`${serviceType} QR 스캔 시작`);
-          navigation.navigate('Register');
+          navigation.navigate('QRScanner');
         },
       },
     ]);
