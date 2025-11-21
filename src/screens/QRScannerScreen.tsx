@@ -105,37 +105,24 @@ export default function QRScannerScreen({
         },
       ]);
     } else {
-      // CHARGE, USE: Register로 이동
+      // CHARGE, USE: Register로 바로 이동 (스택 제거)
       if (!authCode) {
         Alert.alert('오류', '인증 코드가 없습니다.');
         setScanned(true);
         return;
       }
 
-      Alert.alert('QR Code', `${serviceLabel}\n${qrCode}`, [
-        {
-          text: '취소',
-          style: 'cancel',
-          onPress: () => {
-            setScanned(true);
+      // Alert 없이 바로 RegisterScreen으로 이동
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'Register',
+            params: {serviceType, qrCode, authCode},
           },
-        },
-        {
-          text: '확인',
-          onPress: () => {
-            navigation.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'Register',
-                  params: {serviceType, qrCode, authCode},
-                },
-              ],
-            });
-            setScanned(true);
-          },
-        },
-      ]);
+        ],
+      });
+      setScanned(true);
     }
   };
 

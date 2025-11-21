@@ -21,35 +21,19 @@ export default function MainScreen({navigation}: MainScreenProps) {
   const {clearAuth} = useAuthStore();
 
   const handleLogout = () => {
-    Alert.alert('로그아웃', '로그아웃 하시겠습니까?', [
-      {text: '취소', style: 'cancel'},
-      {
-        text: '확인',
-        onPress: () => {
-          // authCode 및 인증 정보 clear
-          clearAuth();
-          // LoginScreen으로 이동 (스택 초기화)
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'Login'}],
-          });
-        },
-      },
-    ]);
+    // authCode 및 인증 정보 clear
+    clearAuth();
+    // LoginScreen으로 이동 (스택 초기화)
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'Login'}],
+    });
   };
 
   const handleQRScan = (serviceType: ServiceType) => {
     const serviceLabel = ServiceTypeLabel[serviceType];
-    Alert.alert('QR 촬영', `${serviceLabel} QR 코드를 촬영하시겠습니까?`, [
-      {text: '취소', style: 'cancel'},
-      {
-        text: '확인',
-        onPress: () => {
-          console.log(`${serviceLabel} QR 스캔 시작`);
-          navigation.navigate('QRScanner', {serviceType});
-        },
-      },
-    ]);
+    console.log(`${serviceLabel} QR 스캔 시작`);
+    navigation.navigate('QRScanner', {serviceType});
   };
 
   return (
