@@ -41,3 +41,27 @@ export interface CheckInResponse {
   eventTitle: string;
 }
 
+export interface ChargeTicketRequest {
+  qrToken: string;
+  code: string;
+  amount: number;
+}
+
+export interface ChargeTicketResponse {
+  ticketCountBefore: number;
+  ticketCountAfter: number;
+  chargedAt: string;
+}
+
+export interface UseTicketRequest {
+  qrToken: string;
+  code: string;
+  amount: number;
+}
+
+export interface UseTicketResponse {
+  ticketCountBefore: number;
+  ticketCountAfter: number;
+  usedAt: string;
+}
+

@@ -87,8 +87,17 @@ export default function QRScannerScreen({
                   Alert.alert(
                     '오류',
                     error.message || '체크인에 실패했습니다.',
+                    [
+                      {
+                        text: '확인',
+                        onPress: () => {
+                          // Main으로 이동
+                          navigation.navigate('Main');
+                          setScanned(true);
+                        },
+                      },
+                    ],
                   );
-                  setScanned(true);
                 },
               },
             );

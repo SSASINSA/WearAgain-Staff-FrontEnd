@@ -8,7 +8,9 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Text} from '../components/common/Text';
-import {ServiceType} from '../types/service';
+import {ServiceType, ServiceTypeLabel} from '../types/service';
+import {useChargeTicket, useUseTicket} from '../hooks/useStaffAuth';
+import {ApiError} from '../types/api';
 
 interface RegisterScreenProps {
   navigation: any;
@@ -29,6 +31,8 @@ export default function RegisterScreen({
   const serviceType = route.params?.serviceType;
   const qrCode = route.params?.qrCode;
   const authCode = route.params?.authCode;
+  const {mutate: chargeTicket, isPending: isCharging} = useChargeTicket();
+  const {mutate: useTicket, isPending: isUsing} = useUseTicket();
 
   const handleDecrease = () => {
     if (quantity > 1) {
@@ -41,21 +45,104 @@ export default function RegisterScreen({
   };
 
   const handleRegister = () => {
-    Alert.alert('교환 등록', `${quantity}벌의 옷을 교환 등록하시겠습니까?`, [
-      {text: '취소', style: 'cancel'},
-      {
-        text: '확인',
-        onPress: () => {
-          // TODO: 실제 교환 등록 API 호출
-          console.log('Service Type:', serviceType);
-          console.log('QR Code:', qrCode);
-          console.log('Auth Code:', authCode);
-          console.log(`${quantity}벌 교환 등록`);
-          // 등록 완료 후 메인 화면으로 이동
-          navigation.navigate('Main');
+    if (!serviceType || !qrCode || !authCode) {
+      Alert.alert('오류', '필수 정보가 누락되었습니다.');
+      return;
+    }
+
+    const serviceLabel = ServiceTypeLabel[serviceType];
+    const actionText =
+      serviceType === ServiceType.CHARGE
+        ? '충전'
+        : serviceType === ServiceType.USE
+        ? '사용'
+        : '등록';
+
+    Alert.alert(
+      '교환 등록',
+      `${quantity}벌의 옷을 교환 ${actionText}하시겠습니까?`,
+      [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '확인',
+          onPress: () => {
+            if (serviceType === ServiceType.CHARGE) {
+              // 교환 티켓 충전 API 호출
+              chargeTicket(
+                {qrToken: qrCode, code: authCode, amount: quantity},
+                {
+                  onSuccess: data => {
+                    Alert.alert(
+                      '충전 완료',
+                      `티켓이 충전되었습니다.\n이전: ${data.ticketCountBefore}개\n이후: ${data.ticketCountAfter}개`,
+                      [
+                        {
+                          text: '확인',
+                          onPress: () => {
+                            navigation.navigate('Main');
+                          },
+                        },
+                      ],
+                    );
+                  },
+                  onError: (error: ApiError) => {
+                    Alert.alert(
+                      '오류',
+                      error.message || '티켓 충전에 실패했습니다.',
+                      [
+                        {
+                          text: '확인',
+                          onPress: () => {
+                            navigation.navigate('Main');
+                          },
+                        },
+                      ],
+                    );
+                  },
+                },
+              );
+            } else if (serviceType === ServiceType.USE) {
+              // 교환 티켓 사용 API 호출
+              useTicket(
+                {qrToken: qrCode, code: authCode, amount: quantity},
+                {
+                  onSuccess: data => {
+                    Alert.alert(
+                      '사용 완료',
+                      `티켓이 사용되었습니다.\n이전: ${data.ticketCountBefore}개\n이후: ${data.ticketCountAfter}개`,
+                      [
+                        {
+                          text: '확인',
+                          onPress: () => {
+                            navigation.navigate('Main');
+                          },
+                        },
+                      ],
+                    );
+                  },
+                  onError: (error: ApiError) => {
+                    Alert.alert(
+                      '오류',
+                      error.message || '티켓 사용에 실패했습니다.',
+                      [
+                        {
+                          text: '확인',
+                          onPress: () => {
+                            navigation.navigate('Main');
+                          },
+                        },
+                      ],
+                    );
+                  },
+                },
+              );
+            } else {
+              Alert.alert('오류', '지원하지 않는 서비스 타입입니다.');
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   return (
@@ -124,9 +211,16 @@ export default function RegisterScreen({
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.registerButton}
-          onPress={handleRegister}>
+          onPress={handleRegister}
+          disabled={isCharging || isUsing}>
           <Text variant="headlineM" color="#FFFFFF" align="center">
-            교환 등록하기
+            {isCharging || isUsing
+              ? '처리 중...'
+              : serviceType === ServiceType.CHARGE
+              ? '충전하기'
+              : serviceType === ServiceType.USE
+              ? '사용하기'
+              : '교환 등록하기'}
           </Text>
         </TouchableOpacity>
       </View>

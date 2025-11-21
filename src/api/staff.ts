@@ -5,6 +5,10 @@ import {
   VerifyCodeResponse,
   CheckInRequest,
   CheckInResponse,
+  ChargeTicketRequest,
+  ChargeTicketResponse,
+  UseTicketRequest,
+  UseTicketResponse,
 } from '../types/api';
 
 /**
@@ -35,6 +39,44 @@ export const checkIn = async (
   const response = await apiClient.post<CheckInResponse>(
     '/api/v1/staff/events/check-in',
     {qrToken, code} as CheckInRequest,
+  );
+  return response.data;
+};
+
+/**
+ * 교환 티켓 충전 API
+ * @param qrToken QR 코드 토큰
+ * @param code 인증 코드
+ * @param amount 충전할 티켓 수량
+ * @returns 충전 결과
+ */
+export const chargeTicket = async (
+  qrToken: string,
+  code: string,
+  amount: number,
+): Promise<ChargeTicketResponse> => {
+  const response = await apiClient.post<ChargeTicketResponse>(
+    '/api/v1/staff/tickets/charge',
+    {qrToken, code, amount} as ChargeTicketRequest,
+  );
+  return response.data;
+};
+
+/**
+ * 교환 티켓 사용 API
+ * @param qrToken QR 코드 토큰
+ * @param code 인증 코드
+ * @param amount 사용할 티켓 수량
+ * @returns 사용 결과
+ */
+export const useTicket = async (
+  qrToken: string,
+  code: string,
+  amount: number,
+): Promise<UseTicketResponse> => {
+  const response = await apiClient.post<UseTicketResponse>(
+    '/api/v1/staff/tickets/use',
+    {qrToken, code, amount} as UseTicketRequest,
   );
   return response.data;
 };

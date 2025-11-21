@@ -1,6 +1,6 @@
 // 스태프 인증 관련 React Query 훅
 import {useMutation} from '@tanstack/react-query';
-import {verifyStaffCode, checkIn} from '../api/staff';
+import {verifyStaffCode, checkIn, chargeTicket, useTicket} from '../api/staff';
 import {ApiError} from '../types/api';
 
 /**
@@ -25,6 +25,46 @@ export const useCheckIn = () => {
       checkIn(qrToken, code),
     onError: (error: ApiError) => {
       console.error('체크인 실패:', error);
+    },
+  });
+};
+
+/**
+ * 교환 티켓 충전 훅
+ */
+export const useChargeTicket = () => {
+  return useMutation({
+    mutationFn: ({
+      qrToken,
+      code,
+      amount,
+    }: {
+      qrToken: string;
+      code: string;
+      amount: number;
+    }) => chargeTicket(qrToken, code, amount),
+    onError: (error: ApiError) => {
+      console.error('티켓 충전 실패:', error);
+    },
+  });
+};
+
+/**
+ * 교환 티켓 사용 훅
+ */
+export const useUseTicket = () => {
+  return useMutation({
+    mutationFn: ({
+      qrToken,
+      code,
+      amount,
+    }: {
+      qrToken: string;
+      code: string;
+      amount: number;
+    }) => useTicket(qrToken, code, amount),
+    onError: (error: ApiError) => {
+      console.error('티켓 사용 실패:', error);
     },
   });
 };
