@@ -28,3 +28,16 @@ export interface ApiError {
   status?: number;
 }
 
+export interface CheckInRequest {
+  qrToken: string;
+  code: string;
+}
+
+export interface CheckInResponse {
+  applicationId: number;
+  status: string;
+  checkedInAt: string;
+  userDisplayName: string;
+  eventTitle: string;
+}
+

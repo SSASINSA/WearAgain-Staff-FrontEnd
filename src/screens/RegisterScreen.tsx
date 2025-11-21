@@ -8,13 +8,27 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Text} from '../components/common/Text';
+import {ServiceType} from '../types/service';
 
 interface RegisterScreenProps {
   navigation: any;
+  route: {
+    params?: {
+      serviceType?: ServiceType;
+      qrCode?: string;
+      authCode?: string;
+    };
+  };
 }
 
-export default function RegisterScreen({navigation}: RegisterScreenProps) {
+export default function RegisterScreen({
+  navigation,
+  route,
+}: RegisterScreenProps) {
   const [quantity, setQuantity] = useState(1);
+  const serviceType = route.params?.serviceType;
+  const qrCode = route.params?.qrCode;
+  const authCode = route.params?.authCode;
 
   const handleDecrease = () => {
     if (quantity > 1) {
@@ -33,6 +47,9 @@ export default function RegisterScreen({navigation}: RegisterScreenProps) {
         text: '확인',
         onPress: () => {
           // TODO: 실제 교환 등록 API 호출
+          console.log('Service Type:', serviceType);
+          console.log('QR Code:', qrCode);
+          console.log('Auth Code:', authCode);
           console.log(`${quantity}벌 교환 등록`);
           // 등록 완료 후 메인 화면으로 이동
           navigation.navigate('Main');

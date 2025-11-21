@@ -10,6 +10,9 @@ import {Camera, CameraType} from 'react-native-camera-kit';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Text} from '../components/common/Text';
 import {ServiceType, ServiceTypeLabel} from '../types/service';
+import {useCheckIn} from '../hooks/useStaffAuth';
+import {useAuthStore} from '../store/authStore';
+import {ApiError} from '../types/api';
 
 interface QRScannerScreenProps {
   navigation: any;
@@ -27,6 +30,8 @@ export default function QRScannerScreen({
   const [scanned, setScanned] = useState<boolean>(true);
   const ref = useRef(null);
   const serviceType = route.params?.serviceType || ServiceType.CHECK_IN;
+  const {mutate: checkIn, isPending: isCheckingIn} = useCheckIn();
+  const {authCode} = useAuthStore();
 
   useEffect(() => {
     // 종료후 재시작을 했을때 초기화
@@ -40,22 +45,89 @@ export default function QRScannerScreen({
     const qrCode = event.nativeEvent.codeStringValue;
     const serviceLabel = ServiceTypeLabel[serviceType];
 
-    Alert.alert('QR Code', `${serviceLabel}\n${qrCode}`, [
-      {
-        text: 'OK',
-        onPress: () => {
-          // TODO: 서비스 타입에 따라 다른 처리
-          console.log('Service Type:', serviceType);
-          console.log('QR Code:', qrCode);
+    if (serviceType === ServiceType.CHECK_IN) {
+      // CHECK_IN: 체크인 API 호출
+      if (!authCode) {
+        Alert.alert('오류', '인증 코드가 없습니다.');
+        setScanned(true);
+        return;
+      }
 
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'Register', params: {serviceType, qrCode}}],
-          });
-          setScanned(true);
+      Alert.alert('QR Code', `${serviceLabel}\n${qrCode}`, [
+        {
+          text: '취소',
+          style: 'cancel',
+          onPress: () => {
+            setScanned(true);
+          },
         },
-      },
-    ]);
+        {
+          text: '확인',
+          onPress: () => {
+            checkIn(
+              {qrToken: qrCode, code: authCode},
+              {
+                onSuccess: data => {
+                  Alert.alert(
+                    '체크인 완료',
+                    `${data.userDisplayName}님\n${data.eventTitle}\n체크인 완료되었습니다.`,
+                    [
+                      {
+                        text: '확인',
+                        onPress: () => {
+                          // Main으로 이동
+                          navigation.navigate('Main');
+                          setScanned(true);
+                        },
+                      },
+                    ],
+                  );
+                },
+                onError: (error: ApiError) => {
+                  Alert.alert(
+                    '오류',
+                    error.message || '체크인에 실패했습니다.',
+                  );
+                  setScanned(true);
+                },
+              },
+            );
+          },
+        },
+      ]);
+    } else {
+      // CHARGE, USE: Register로 이동
+      if (!authCode) {
+        Alert.alert('오류', '인증 코드가 없습니다.');
+        setScanned(true);
+        return;
+      }
+
+      Alert.alert('QR Code', `${serviceLabel}\n${qrCode}`, [
+        {
+          text: '취소',
+          style: 'cancel',
+          onPress: () => {
+            setScanned(true);
+          },
+        },
+        {
+          text: '확인',
+          onPress: () => {
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'Register',
+                  params: {serviceType, qrCode, authCode},
+                },
+              ],
+            });
+            setScanned(true);
+          },
+        },
+      ]);
+    }
   };
 
   const handleBack = () => {
