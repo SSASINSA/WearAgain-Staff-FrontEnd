@@ -1,23 +1,32 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
   Alert,
-  Dimensions,
   StyleSheet,
+  TouchableOpacity,
   Vibration,
   View,
-  TouchableOpacity,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {Camera, CameraType} from 'react-native-camera-kit';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {Text} from '../components/common/Text';
+import {ServiceType, ServiceTypeLabel} from '../types/service';
 
 interface QRScannerScreenProps {
   navigation: any;
+  route: {
+    params?: {
+      serviceType?: ServiceType;
+    };
+  };
 }
 
-export default function QRScannerScreen({navigation}: QRScannerScreenProps) {
+export default function QRScannerScreen({
+  navigation,
+  route,
+}: QRScannerScreenProps) {
   const [scanned, setScanned] = useState<boolean>(true);
   const ref = useRef(null);
+  const serviceType = route.params?.serviceType || ServiceType.CHECK_IN;
 
   useEffect(() => {
     // 종료후 재시작을 했을때 초기화
@@ -28,13 +37,20 @@ export default function QRScannerScreen({navigation}: QRScannerScreenProps) {
     if (!scanned) return;
     setScanned(false);
     Vibration.vibrate();
-    Alert.alert('QR Code', event.nativeEvent.codeStringValue, [
+    const qrCode = event.nativeEvent.codeStringValue;
+    const serviceLabel = ServiceTypeLabel[serviceType];
+
+    Alert.alert('QR Code', `${serviceLabel}\n${qrCode}`, [
       {
         text: 'OK',
         onPress: () => {
+          // TODO: 서비스 타입에 따라 다른 처리
+          console.log('Service Type:', serviceType);
+          console.log('QR Code:', qrCode);
+
           navigation.reset({
             index: 0,
-            routes: [{name: 'Register'}],
+            routes: [{name: 'Register', params: {serviceType, qrCode}}],
           });
           setScanned(true);
         },

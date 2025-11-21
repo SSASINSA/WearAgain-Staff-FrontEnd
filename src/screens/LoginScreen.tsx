@@ -11,6 +11,9 @@ import {
   Alert,
 } from 'react-native';
 import {Text} from '../components/common/Text';
+import {useVerifyStaffCode} from '../hooks/useStaffAuth';
+import {useAuthStore} from '../store/authStore';
+import {ApiError} from '../types/api';
 
 interface LoginScreenProps {
   navigation: any;
@@ -21,28 +24,37 @@ const logoImage = require('../asset/image/wear_again_logo.png');
 
 export default function LoginScreen({navigation}: LoginScreenProps) {
   const [authCode, setAuthCode] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const {mutate: verifyCode, isPending: isLoading} = useVerifyStaffCode();
+  const {
+    setAuthenticated,
+    setAuthCode: setAuthCodeToStore,
+    setCurrentEvent,
+  } = useAuthStore();
 
-  const handleVerify = async () => {
+  const handleVerify = () => {
     if (!authCode.trim()) {
       Alert.alert('오류', '인증 코드를 입력해주세요.');
       return;
     }
 
-    setIsLoading(true);
-    try {
-      // TODO: 실제 인증 API 호출
-      console.log('인증 코드 확인:', authCode);
-      // 임시로 2초 후 성공 처리
-      setTimeout(() => {
-        setIsLoading(false);
-        // MainScreen으로 이동
-        navigation.navigate('Main');
-      }, 2000);
-    } catch (error) {
-      setIsLoading(false);
-      Alert.alert('오류', '인증에 실패했습니다.');
-    }
+    verifyCode(authCode, {
+      onSuccess: data => {
+        if (data.valid && data.event) {
+          // 인증 성공 - Zustand store에 저장
+          setAuthenticated(true);
+          setAuthCodeToStore(authCode);
+          setCurrentEvent(data.event);
+          // MainScreen으로 이동
+          navigation.navigate('Main');
+        } else {
+          Alert.alert('오류', '유효하지 않은 인증 코드입니다.');
+        }
+      },
+      onError: (error: ApiError) => {
+        // API 실패 시 에러 메시지 팝업
+        Alert.alert('오류', error.message || '인증에 실패했습니다.');
+      },
+    });
   };
 
   return (
@@ -103,7 +115,7 @@ export default function LoginScreen({navigation}: LoginScreenProps) {
               styles.verifyButton,
               authCode.length === 6 && styles.verifyButtonActive,
             ]}
-            onPress={isLoading ? undefined : handleVerify}
+            onPress={handleVerify}
             disabled={isLoading || authCode.length !== 6}>
             <Text variant="labelL" color="#FFFFFF" align="center">
               {isLoading ? '확인 중...' : '확인'}

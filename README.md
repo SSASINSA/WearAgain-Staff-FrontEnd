@@ -82,6 +82,30 @@ You've successfully run and modified your React Native App. :partying_face:
 - If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
 - If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
 
+# API 설정
+
+API Base URL은 `src/config/api.ts` 파일에서 관리됩니다.
+
+## 로컬 개발 환경 설정
+
+로컬에서만 다른 API URL을 사용하고 싶은 경우:
+
+1. `src/config/api.local.ts.example` 파일을 `src/config/api.local.ts`로 복사합니다:
+   ```sh
+   cp src/config/api.local.ts.example src/config/api.local.ts
+   ```
+
+2. `src/config/api.local.ts` 파일에서 `API_BASE_URL`을 원하는 값으로 수정합니다:
+   ```typescript
+   const API_BASE_URL = 'http://localhost:3000'; // 로컬 개발 서버
+   ```
+
+3. `api.local.ts` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다.
+
+## 기본 설정
+
+기본 API Base URL은 `https://ssasinsa.co.kr`로 설정되어 있습니다.
+
 # Troubleshooting
 
 If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.

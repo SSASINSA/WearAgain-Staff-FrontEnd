@@ -10,6 +10,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Text} from '../components/common/Text';
 import QrSvg from '../asset/image/icon_qr.svg';
+import {ServiceType, ServiceTypeLabel} from '../types/service';
 
 interface MainScreenProps {
   navigation: any;
@@ -23,15 +24,15 @@ export default function MainScreen({navigation}: MainScreenProps) {
     });
   };
 
-  const handleQRScan = (serviceType: string) => {
-    Alert.alert('QR 촬영', `${serviceType} QR 코드를 촬영하시겠습니까?`, [
+  const handleQRScan = (serviceType: ServiceType) => {
+    const serviceLabel = ServiceTypeLabel[serviceType];
+    Alert.alert('QR 촬영', `${serviceLabel} QR 코드를 촬영하시겠습니까?`, [
       {text: '취소', style: 'cancel'},
       {
         text: '확인',
         onPress: () => {
-          // TODO: QR 스캔 기능 구현
-          console.log(`${serviceType} QR 스캔 시작`);
-          navigation.navigate('QRScanner');
+          console.log(`${serviceLabel} QR 스캔 시작`);
+          navigation.navigate('QRScanner', {serviceType});
         },
       },
     ]);
@@ -62,7 +63,7 @@ export default function MainScreen({navigation}: MainScreenProps) {
             </View>
             <TouchableOpacity
               style={styles.qrButton}
-              onPress={() => handleQRScan('입장 티켓 체크인')}>
+              onPress={() => handleQRScan(ServiceType.CHECK_IN)}>
               <QrSvg
                 width={16}
                 height={18}
@@ -85,7 +86,7 @@ export default function MainScreen({navigation}: MainScreenProps) {
             </View>
             <TouchableOpacity
               style={styles.qrButton}
-              onPress={() => handleQRScan('교환 티켓 충전')}>
+              onPress={() => handleQRScan(ServiceType.CHARGE)}>
               <QrSvg
                 width={16}
                 height={18}
@@ -108,7 +109,7 @@ export default function MainScreen({navigation}: MainScreenProps) {
             </View>
             <TouchableOpacity
               style={styles.qrButton}
-              onPress={() => handleQRScan('교환 티켓 사용')}>
+              onPress={() => handleQRScan(ServiceType.USE)}>
               <QrSvg
                 width={16}
                 height={18}

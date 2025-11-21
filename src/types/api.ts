@@ -1,0 +1,30 @@
+// API 타입 정의
+
+export interface VerifyCodeRequest {
+  code: string;
+}
+
+export interface Event {
+  eventId: number;
+  title: string;
+  status: 'OPEN' | 'CLOSED' | 'CANCELLED';
+  startDate: string;
+  endDate: string;
+  location: string;
+  usageGuide: string;
+  precautions: string;
+  staffCodeIssuedAt: string;
+  organizerName: string;
+}
+
+export interface VerifyCodeResponse {
+  valid: boolean;
+  event: Event;
+}
+
+export interface ApiError {
+  message: string;
+  code?: string;
+  status?: number;
+}
+
