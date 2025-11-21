@@ -11,17 +11,31 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Text} from '../components/common/Text';
 import QrSvg from '../asset/image/icon_qr.svg';
 import {ServiceType, ServiceTypeLabel} from '../types/service';
+import {useAuthStore} from '../store/authStore';
 
 interface MainScreenProps {
   navigation: any;
 }
 
 export default function MainScreen({navigation}: MainScreenProps) {
+  const {clearAuth} = useAuthStore();
+
   const handleLogout = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'Login'}],
-    });
+    Alert.alert('로그아웃', '로그아웃 하시겠습니까?', [
+      {text: '취소', style: 'cancel'},
+      {
+        text: '확인',
+        onPress: () => {
+          // authCode 및 인증 정보 clear
+          clearAuth();
+          // LoginScreen으로 이동 (스택 초기화)
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Login'}],
+          });
+        },
+      },
+    ]);
   };
 
   const handleQRScan = (serviceType: ServiceType) => {
@@ -46,6 +60,11 @@ export default function MainScreen({navigation}: MainScreenProps) {
         <Text variant="headlineL" color="#111827">
           스태프 QR 서비스
         </Text>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text variant="labelM" color="#EF4444">
+            로그아웃
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* 메인 콘텐츠 */}
@@ -139,7 +158,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 16,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   content: {
     flex: 1,
@@ -185,11 +206,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   logoutButton: {
-    backgroundColor: '#EF4444',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    marginTop: 32,
-    alignSelf: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
 });

@@ -79,7 +79,10 @@ export default function RegisterScreen({
                         {
                           text: '확인',
                           onPress: () => {
-                            navigation.navigate('Main');
+                            navigation.reset({
+                              index: 0,
+                              routes: [{name: 'Main'}],
+                            });
                           },
                         },
                       ],
@@ -93,7 +96,10 @@ export default function RegisterScreen({
                         {
                           text: '확인',
                           onPress: () => {
-                            navigation.navigate('Main');
+                            navigation.reset({
+                              index: 0,
+                              routes: [{name: 'Main'}],
+                            });
                           },
                         },
                       ],
@@ -114,7 +120,10 @@ export default function RegisterScreen({
                         {
                           text: '확인',
                           onPress: () => {
-                            navigation.navigate('Main');
+                            navigation.reset({
+                              index: 0,
+                              routes: [{name: 'Main'}],
+                            });
                           },
                         },
                       ],
@@ -128,7 +137,10 @@ export default function RegisterScreen({
                         {
                           text: '확인',
                           onPress: () => {
-                            navigation.navigate('Main');
+                            navigation.reset({
+                              index: 0,
+                              routes: [{name: 'Main'}],
+                            });
                           },
                         },
                       ],
